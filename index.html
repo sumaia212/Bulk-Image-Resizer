@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bulk Image Resizer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef0f4;--card:#fff;--ink:#16181d;--mut:#5d6472;--line:#d6dae3;--acc:#4338ca;--on:#fff;--ok:#0f7b4f;--soft:#f5f6fa;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101218;--card:#1a1d26;--ink:#eceef4;--mut:#9aa1b2;--line:#2c3140;--acc:#8b87ff;--on:#0e0f1a;--ok:#4fd39a;--soft:#222633;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#101218;--card:#1a1d26;--ink:#eceef4;--mut:#9aa1b2;--line:#2c3140;--acc:#8b87ff;--on:#0e0f1a;--ok:#4fd39a;--soft:#222633;color-scheme:dark}
+*,*:before,*:after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 "Hind Siliguri",system-ui,"Noto Sans Bengali",sans-serif}
+.wrap{max-width:1120px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:1.7rem;margin:0 0 4px;font-weight:700}
+.sub{color:var(--mut);margin:0 0 18px}
+.drop{display:block;border:2px dashed var(--line);border-radius:14px;background:var(--card);padding:26px 16px;text-align:center;cursor:pointer;position:relative}
+.drop.on,.drop:hover,.drop:focus-within{border-color:var(--acc)}
+.drop b{font-size:1.1rem}.drop span{display:block;color:var(--mut);font-size:.92rem}
+.drop input{position:absolute;opacity:0;width:1px;height:1px}
+.grid{display:grid;grid-template-columns:350px 1fr;gap:16px;margin-top:16px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:1fr}}
+.panel,.res{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+fieldset{border:0;border-top:1px solid var(--line);margin:14px 0 0;padding:12px 0 0;min-width:0}
+fieldset:first-of-type{border-top:0;margin-top:0;padding-top:0}
+legend{font-weight:600;padding:0 6px 0 0;float:left;width:100%;margin-bottom:8px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0;clear:both}
+.row>label.f{flex:1 1 90px;display:flex;flex-direction:column;font-size:.85rem;color:var(--mut)}
+input[type=number],input[type=text],select{width:100%;font:inherit;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:42px}
+input[type=color]{width:100%;height:42px;border:1px solid var(--line);border-radius:8px;background:var(--soft);padding:3px}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.chk{display:flex;gap:8px;align-items:center;font-size:.95rem}
+.tabs{display:flex;gap:6px;clear:both}
+.tabs label{flex:1;position:relative}.tabs input{position:absolute;opacity:0}
+.tabs span{display:block;text-align:center;padding:8px;border:1px solid var(--line);border-radius:8px;cursor:pointer;background:var(--soft)}
+.tabs input:checked+span{background:var(--acc);color:var(--on);border-color:var(--acc)}
+.tabs input:focus-visible+span,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+button{font:inherit;font-weight:600;border-radius:10px;border:1px solid var(--line);background:var(--soft);color:var(--ink);padding:10px 16px;cursor:pointer;min-height:44px}
+button.p{background:var(--acc);color:var(--on);border-color:var(--acc)}
+button:disabled{opacity:.5;cursor:not-allowed}
+.note{font-size:.84rem;color:var(--mut);margin:6px 0 0}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.bar button{flex:1 1 120px}
+.head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.card{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--soft);display:flex;flex-direction:column}
+.th{aspect-ratio:4/3;background:repeating-conic-gradient(var(--line) 0 25%,transparent 0 50%) 0 0/16px 16px;display:flex}
+.th img{width:100%;height:100%;object-fit:contain}
+.meta{padding:10px;font-size:.85rem;display:flex;flex-direction:column;gap:2px;flex:1}
+.meta .n{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.meta .o{color:var(--mut)}.meta .r{color:var(--ok);font-weight:600}
+.acts{display:flex;gap:6px;padding:0 10px 10px}.acts button{flex:1;padding:6px 8px;min-height:38px;font-size:.88rem}
+.empty{color:var(--mut);text-align:center;padding:30px 10px}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:.9rem;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw}
+#toast.on{opacity:1}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Bulk Image Resizer</h1>
+<p class="sub">Resize many images at once. Everything runs in your browser, so no image is uploaded anywhere.</p>
+
+<label class="drop" id="drop">
+<input type="file" id="file" accept="image/*" multiple>
+<b>Choose images or drop them here</b>
+<span>JPG, PNG, WebP, GIF. You can also paste with Ctrl+V.</span>
+</label>
+
+<div class="grid">
+<form class="panel" id="f" onsubmit="return false">
+<fieldset><legend>Size</legend>
+<div class="tabs">
+<label><input type="radio" name="mode" value="px" checked><span>Pixels</span></label>
+<label><input type="radio" name="mode" value="pct"><span>Percent</span></label>
+</div>
+<div id="gPx">
+<div class="row">
+<label class="f">Width (px)<input type="number" id="w" min="1" max="8000" placeholder="e.g. 1080"></label>
+<label class="f">Height (px)<input type="number" id="h" min="1" max="8000" placeholder="e.g. 1080"></label>
+</div>
+<p class="note">Type any custom size. Leave one box empty and the other is calculated automatically.</p>
+<div class="row"><label class="chk"><input type="checkbox" id="lock" checked> Lock aspect ratio</label></div>
+<div class="row"><button type="button" id="useOrig">Use first image's original size</button></div>
+<div class="row"><label class="f" style="flex-basis:100%">Size presets
+<select id="preset"><option value="">Choose</option>
+<option value="1080x1080">Instagram post 1080×1080</option>
+<option value="1080x1350">Instagram portrait 1080×1350</option>
+<option value="1080x1920">Instagram / TikTok story 1080×1920</option>
+<option value="820x312">Facebook cover 820×312</option>
+<option value="1280x720">YouTube thumbnail 1280×720</option>
+<option value="1920x1080">Full HD 1920×1080</option>
+<option value="500x500">Profile photo 500×500</option>
+<option value="413x531">Passport photo 413×531</option></select></label></div>
+<div class="row"><label class="f" style="flex-basis:100%">Fit mode
+<select id="fit"><option value="contain">Fit inside (whole image, background color fills gaps)</option><option value="cover">Fill (edges are cropped)</option><option value="stretch">Stretch (image may distort)</option></select></label></div>
+<div class="row"><label class="chk"><input type="checkbox" id="noUp"> Never enlarge (only shrink)</label></div>
+</div>
+<div id="gPct" class="hide">
+<div class="row"><label class="f" style="flex-basis:100%">Scale: <b id="pctV">50</b>%<input type="range" id="pct" min="5" max="300" value="50"></label></div>
+</div>
+</fieldset>
+
+<fieldset><legend>Style effect</legend>
+<div class="row"><select id="style">
+<option value="none">No effect</option>
+<option value="2d">2D cartoon</option>
+<option value="3d">3D depth</option>
+<option value="pixar">Pixar style</option></select></div>
+<div class="row hide" id="gStr"><label class="f" style="flex-basis:100%">Effect strength: <b id="strV">60</b>%<input type="range" id="str" min="0" max="100" value="60"></label></div>
+<p class="note">These are in-browser filter effects, not an AI model. A true Pixar or 3D conversion would look different.</p>
+</fieldset>
+
+<fieldset><legend>Output</legend>
+<div class="row">
+<label class="f">Format<select id="fmt"><option value="image/jpeg">JPG</option><option value="image/png">PNG</option><option value="image/webp">WebP</option></select></label>
+<label class="f">Rotate<select id="rot"><option value="0">None</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></label>
+</div>
+<div class="row"><label class="f" style="flex-basis:100%">Quality: <b id="qV">85</b>%<input type="range" id="q" min="10" max="100" value="85"></label></div>
+<div class="row">
+<label class="f">Max file size (KB)<input type="number" id="kb" min="5" placeholder="e.g. 100"></label>
+<label class="f">Background color<input type="color" id="bg" value="#ffffff"></label>
+</div>
+<div class="row">
+<label class="chk"><input type="checkbox" id="fh"> Flip horizontal</label>
+<label class="chk"><input type="checkbox" id="fv"> Flip vertical</label>
+</div>
+<div class="row"><label class="f" style="flex-basis:100%">File name prefix<input type="text" id="prefix" placeholder="e.g. resized-"></label></div>
+</fieldset>
+
+<div class="bar">
+<button type="button" class="p" id="go" disabled>Resize all images</button>
+<button type="button" id="resetBtn">Reset</button>
+</div>
+</form>
+
+<section class="res" aria-live="polite">
+<div class="head"><b id="count">No images yet</b>
+<button type="button" class="p" id="zip" disabled>Download all as ZIP</button></div>
+<div class="list" id="list"><div class="empty">Added images will appear here.</div></div>
+</section>
+</div>
+</div>
+<div id="toast" role="status"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+let items=[],dl=null,busy=false;
+try{if(window.claude&&claude.use)claude.use("downloads").then(m=>dl=m).catch(()=>{})}catch(e){}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const kb=n=>n>=1048576?(n/1048576).toFixed(2)+" MB":Math.round(n/1024)+" KB";
+let tt;function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("on"),2600)}
+
+function opts(){
+ return{mode:document.querySelector('[name=mode]:checked').value,w:+$("w").value||0,h:+$("h").value||0,pct:+$("pct").value,
+ fit:$("fit").value,noUp:$("noUp").checked,style:$("style").value,str:+$("str").value/100,fmt:$("fmt").value,q:+$("q").value/100,
+ kb:+$("kb").value||0,bg:$("bg").value,rot:+$("rot").value,fh:$("fh").checked,fv:$("fv").checked,prefix:$("prefix").value.trim()}
+}
+const mk=(w,h)=>{const e=document.createElement("canvas");e.width=Math.max(1,w|0);e.height=Math.max(1,h|0);return e};
+function blur(c,f){const a=mk(c.width/f,c.height/f),x=a.getContext("2d");x.imageSmoothingQuality="high";x.drawImage(c,0,0,a.width,a.height);
+ const b=mk(c.width,c.height),y=b.getContext("2d");y.imageSmoothingQuality="high";y.drawImage(a,0,0,b.width,b.height);return b}
+const clamp=v=>v<0?0:v>255?255:v;
+
+function fx(c,st,t){
+ if(st==="none")return;
+ const x=c.getContext("2d"),W=c.width,H=c.height;
+ if(st==="2d"||st==="pixar"){x.globalAlpha=st==="2d"?1:.35+.4*t;x.drawImage(blur(c,2),0,0);x.globalAlpha=1}
+ const d=x.getImageData(0,0,W,H),p=d.data,g=new Float32Array(W*H);
+ for(let i=0;i<W*H;i++)g[i]=.299*p[i*4]+.587*p[i*4+1]+.114*p[i*4+2];
+ if(st==="2d"){
+  const n=Math.round(12-8*t),step=255/(n-1),thr=150-90*t,o=new Uint8Array(W*H);
+  for(let y=1;y<H-1;y++)for(let i=y*W+1,e=y*W+W-1;i<e;i++){
+   const gx=g[i-W+1]+2*g[i+1]+g[i+W+1]-g[i-W-1]-2*g[i-1]-g[i+W-1],gy=g[i+W-1]+2*g[i+W]+g[i+W+1]-g[i-W-1]-2*g[i-W]-g[i-W+1];
+   o[i]=Math.abs(gx)+Math.abs(gy)>thr*2?1:0}
+  for(let i=0;i<W*H;i++){const k=i*4,l=g[i];
+   for(let j=0;j<3;j++){let v=l+(p[k+j]-l)*1.25;v=Math.round(clamp(v)/step)*step;p[k+j]=o[i]?v*.15:v}}
+  x.putImageData(d,0,0);return}
+ if(st==="3d"){
+  const a=1.2*t;
+  for(let y=1;y<H-1;y++)for(let i=y*W+1,e=y*W+W-1;i<e;i++){
+   const em=(g[i-W-1]-g[i+W+1])*a,k=i*4;
+   for(let j=0;j<3;j++)p[k+j]=clamp((p[k+j]+em-128)*(1+.25*t)+128)}
+  x.putImageData(d,0,0);
+  const gr=x.createLinearGradient(0,0,W,H);gr.addColorStop(0,"rgba(255,255,255,.9)");gr.addColorStop(.5,"rgba(128,128,128,.5)");gr.addColorStop(1,"rgba(0,0,0,.9)");
+  x.globalCompositeOperation="soft-light";x.globalAlpha=.6*t;x.fillStyle=gr;x.fillRect(0,0,W,H);
+  x.globalCompositeOperation="source-over";x.globalAlpha=1;return}
+ if(st==="pixar"){
+  const sat=1+.55*t,con=1+.12*t;
+  for(let i=0;i<W*H;i++){const k=i*4,l=g[i];
+   for(let j=0;j<3;j++){let v=l+(p[k+j]-l)*sat;v=(v-128)*con+128+8*t;p[k+j]=clamp(v)}
+   p[k]=clamp(p[k]+10*t);p[k+2]=clamp(p[k+2]-6*t)}
+  x.putImageData(d,0,0);
+  const b=blur(c,6);x.globalCompositeOperation="soft-light";x.globalAlpha=.55*t;x.drawImage(b,0,0);
+  x.globalCompositeOperation="screen";x.globalAlpha=.16*t;x.drawImage(b,0,0);
+  x.globalCompositeOperation="multiply";x.globalAlpha=1;
+  const r=x.createRadialGradient(W/2,H/2,Math.min(W,H)*.35,W/2,H/2,Math.max(W,H)*.75);
+  r.addColorStop(0,"rgba(255,255,255,1)");r.addColorStop(1,`rgba(${255-90*t|0},${255-100*t|0},${255-110*t|0},1)`);
+  x.fillStyle=r;x.fillRect(0,0,W,H);x.globalCompositeOperation="source-over"}
+}
+
+function srcDims(it,o){return o.rot%180?[it.h,it.w]:[it.w,it.h]}
+function dims(it,o){
+ const[sw,sh]=srcDims(it,o);let w,h,fit=o.fit;
+ if(o.mode==="pct"){w=sw*o.pct/100;h=sh*o.pct/100;fit="stretch"}
+ else{w=o.w;h=o.h;
+  if(!w&&!h){w=sw;h=sh}else if(!h)h=w*sh/sw;else if(!w)w=h*sw/sh;
+  if(o.noUp&&w>sw&&h>sh){w=sw;h=sh}}
+ return[Math.min(8000,Math.max(1,Math.round(w))),Math.min(8000,Math.max(1,Math.round(h))),fit,sw,sh]
+}
+function render(it,o){
+ const[W,H,fit,sw,sh]=dims(it,o);
+ const s=mk(sw,sh),sc=s.getContext("2d");
+ sc.translate(sw/2,sh/2);sc.rotate(o.rot*Math.PI/180);sc.scale(o.fh?-1:1,o.fv?-1:1);sc.drawImage(it.img,-it.w/2,-it.h/2);
+ const c=mk(W,H),x=c.getContext("2d");x.imageSmoothingQuality="high";
+ if(o.fmt==="image/jpeg"||fit==="contain"){x.fillStyle=o.bg;x.fillRect(0,0,W,H)}
+ let dw=W,dh=H;
+ if(fit!=="stretch"){const k=fit==="contain"?Math.min(W/sw,H/sh):Math.max(W/sw,H/sh);dw=sw*k;dh=sh*k}
+ x.drawImage(s,(W-dw)/2,(H-dh)/2,dw,dh);
+ fx(c,o.style,o.str);return c
+}
+const toBlob=(c,t,q)=>new Promise(r=>c.toBlob(r,t,q));
+async function encode(c,o){
+ if(!o.kb||o.fmt==="image/png")return toBlob(c,o.fmt,o.q);
+ const max=o.kb*1024;let lo=.05,hi=.95,best=null;
+ for(let i=0;i<8;i++){const m=(lo+hi)/2,b=await toBlob(c,o.fmt,m);if(b.size<=max){best=b;lo=m}else hi=m}
+ return best||toBlob(c,o.fmt,.05)
+}
+const ext={"image/jpeg":"jpg","image/png":"png","image/webp":"webp"};
+
+function addFiles(fs){
+ const arr=[...fs].filter(f=>f.type.startsWith("image/"));
+ if(!arr.length){toast("No images found");return}
+ arr.forEach(f=>{const url=URL.createObjectURL(f),img=new Image();
+  img.onload=()=>{items.push({file:f,img,url,w:img.naturalWidth,h:img.naturalHeight,out:null});draw()};
+  img.onerror=()=>{URL.revokeObjectURL(url);toast("Could not open "+f.name)};img.src=url});
+}
+function draw(){
+ const L=$("list");$("go").disabled=!items.length||busy;
+ $("count").textContent=items.length?items.length+(items.length===1?" image":" images"):"No images yet";
+ $("zip").disabled=!items.some(i=>i.out);
+ if(!items.length){L.innerHTML='<div class="empty">Added images will appear here.</div>';return}
+ L.innerHTML=items.map((it,n)=>{const r=it.out;
+  const save=r?Math.round((1-r.blob.size/it.file.size)*100):0;
+  return `<div class="card"><div class="th"><img src="${r?r.url:it.url}" alt=""></div><div class="meta">
+  <span class="n" title="${esc(it.file.name)}">${esc(it.file.name)}</span>
+  <span class="o">Before: ${it.w}×${it.h} · ${kb(it.file.size)}</span>
+  ${r?`<span class="r">After: ${r.w}×${r.h} · ${kb(r.blob.size)}${save>0?` (${save}% smaller)`:""}</span>`:'<span class="o">Not resized yet</span>'}
+  </div><div class="acts">${r?`<button type="button" data-d="${n}">Download</button>`:""}<button type="button" data-x="${n}">Remove</button></div></div>`}).join("")
+}
+function outName(it,n,used){
+ const o=opts(),base=it.file.name.replace(/\.[^.]+$/,"");let nm=`${o.prefix}${base}.${ext[it.out.fmt]}`;
+ if(used.has(nm))nm=`${o.prefix}${base}-${n+1}.${ext[it.out.fmt]}`;used.add(nm);return nm
+}
+async function run(){
+ if(busy||!items.length)return;busy=true;const o=opts(),b=$("go");b.disabled=true;
+ for(let i=0;i<items.length;i++){
+  b.textContent=`Processing ${i+1}/${items.length}`;
+  await new Promise(r=>setTimeout(r,20));
+  try{const it=items[i],c=render(it,o),blob=await encode(c,o);
+   if(it.out)URL.revokeObjectURL(it.out.url);
+   it.out={blob,w:c.width,h:c.height,fmt:o.fmt,url:URL.createObjectURL(blob)}}
+  catch(e){toast("Problem with "+items[i].file.name)}
+ }
+ busy=false;b.textContent="Resize all images";draw();toast("Resize complete")
+}
+async function save(name,data){
+ if(dl){try{await dl.save({filename:name,data})}catch(e){if(e&&e.code!=="declined")toast("Download failed")}return}
+ const a=document.createElement("a");a.href=URL.createObjectURL(data);a.download=name;document.body.appendChild(a);a.click();a.remove()
+}
+function syncLock(from){
+ if(!$("lock").checked||!items.length)return;
+ const[sw,sh]=srcDims(items[0],opts());
+ if(from==="w"&&$("w").value)$("h").value=Math.round($("w").value*sh/sw);
+ if(from==="h"&&$("h").value)$("w").value=Math.round($("h").value*sw/sh)
+}
+function ui(){
+ const m=opts().mode;$("gPx").classList.toggle("hide",m!=="px");$("gPct").classList.toggle("hide",m!=="pct");
+ $("gStr").classList.toggle("hide",$("style").value==="none");
+ $("pctV").textContent=$("pct").value;$("strV").textContent=$("str").value;$("qV").textContent=$("q").value;
+ $("q").disabled=$("fmt").value==="image/png"
+}
+function resetAll(){
+ items.forEach(i=>{URL.revokeObjectURL(i.url);if(i.out)URL.revokeObjectURL(i.out.url)});items=[];
+ HTMLFormElement.prototype.reset.call($("f"));$("file").value="";ui();draw();toast("Everything was reset")
+}
+
+$("file").onchange=e=>{addFiles(e.target.files);e.target.value=""};
+const dz=$("drop");
+["dragenter","dragover"].forEach(t=>dz.addEventListener(t,e=>{e.preventDefault();dz.classList.add("on")}));
+["dragleave","drop"].forEach(t=>dz.addEventListener(t,e=>{e.preventDefault();dz.classList.remove("on")}));
+dz.addEventListener("drop",e=>addFiles(e.dataTransfer.files));
+document.addEventListener("paste",e=>{const f=[...(e.clipboardData?e.clipboardData.files:[])];if(f.length)addFiles(f)});
+$("f").addEventListener("input",ui);$("f").addEventListener("change",ui);
+$("w").addEventListener("input",()=>syncLock("w"));$("h").addEventListener("input",()=>syncLock("h"));
+$("useOrig").onclick=()=>{if(!items.length){toast("Add images first");return}const[sw,sh]=srcDims(items[0],opts());$("w").value=sw;$("h").value=sh};
+$("preset").onchange=e=>{if(!e.target.value)return;const[w,h]=e.target.value.split("x");$("w").value=w;$("h").value=h;$("fit").value="cover";e.target.value=""};
+$("go").onclick=run;$("resetBtn").onclick=resetAll;
+$("zip").onclick=async()=>{
+ const done=items.filter(i=>i.out);if(!done.length)return;
+ if(!window.JSZip){toast("ZIP library failed to load");return}
+ const z=new JSZip(),used=new Set();done.forEach((it,n)=>z.file(outName(it,n,used),it.out.blob));
+ save("resized-images.zip",await z.generateAsync({type:"blob"}))
+};
+$("list").onclick=e=>{
+ const d=e.target.closest("[data-d]"),x=e.target.closest("[data-x]");
+ if(d){const it=items[+d.dataset.d];save(outName(it,+d.dataset.d,new Set()),it.out.blob)}
+ if(x){const i=+x.dataset.x,it=items[i];URL.revokeObjectURL(it.url);if(it.out)URL.revokeObjectURL(it.out.url);items.splice(i,1);draw()}
+};
+ui();
+</script>
+</body>
+</html>
