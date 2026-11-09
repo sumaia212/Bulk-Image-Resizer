@@ -55,6 +55,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .empty{color:var(--mut);text-align:center;padding:30px 10px}
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:.9rem;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw}
 #toast.on{opacity:1}
+.upbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.upbar button{flex:1 1 160px}
 .hide{display:none!important}
 </style>
 </head>
@@ -68,6 +69,11 @@ button:disabled{opacity:.5;cursor:not-allowed}
 <b>Choose images or drop them here</b>
 <span>JPG, PNG, WebP, GIF. You can also paste with Ctrl+V.</span>
 </label>
+<div class="upbar">
+<button type="button" class="p" id="pick">Upload images</button>
+<button type="button" id="pickDir">Upload a folder</button>
+<input type="file" id="folder" accept="image/*" webkitdirectory multiple class="hide">
+</div>
 
 <div class="grid">
 <form class="panel" id="f" onsubmit="return false">
@@ -288,6 +294,9 @@ function resetAll(){
 }
 
 $("file").onchange=e=>{addFiles(e.target.files);e.target.value=""};
+$("pick").onclick=()=>$("file").click();
+$("pickDir").onclick=()=>$("folder").click();
+$("folder").onchange=e=>{addFiles(e.target.files);e.target.value=""};
 const dz=$("drop");
 ["dragenter","dragover"].forEach(t=>dz.addEventListener(t,e=>{e.preventDefault();dz.classList.add("on")}));
 ["dragleave","drop"].forEach(t=>dz.addEventListener(t,e=>{e.preventDefault();dz.classList.remove("on")}));
